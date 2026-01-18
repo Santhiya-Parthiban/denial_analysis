@@ -1,0 +1,118 @@
+CREATE DATABASE healthcare;
+USE healthcare;
+CREATE TABLE claims(
+Claim_ID VARCHAR(20),
+Patient_ID VARCHAR(20),
+Date_of_Service DATE,
+Department VARCHAR(50),
+Procedure_Code VARCHAR(10),
+Diagnosis_Code VARCHAR(10),
+Claim_Amount DECIMAL(10,2),
+Denial_Status VARCHAR(10),
+Denial_Reason VARCHAR(50)
+);
+
+USE healthcare;
+SELECT COUNT(*) FROM claims;
+SELECT COUNT(*) FROM claims WHERE Denial_Status = 'Denied';
+SELECT Denial_Reason, COUNT(*) FROM claims
+WHERE Denial_Status = 'Denied'
+GROUP BY Denial_Reason;
+
+SELECT Procedure_Code, COUNT(*) FROM claims
+WHERE Denial_Status = 'Denied'
+GROUP BY Procedure_Code;
+
+SELECT Department, COUNT(*) FROM claims
+WHERE Denial_Status = 'Denied'
+GROUP BY Department;
+
+SELECT MAX(Claim_Amount) AS Highest_denied_amount,
+MIN(Claim_Amount) AS Lowest_denied_amount
+FROM claims
+WHERE Denial_Status = 'Denied';
+
+SELECT MONTH(Date_of_Service) AS month,
+COUNT(*) AS denial_count
+FROM claims
+WHERE Denial_Status = 'Denied'
+GROUP BY MONTH(Date_of_Service)
+ORDER BY month;
+
+SELECT Department,
+       (SUM(CASE WHEN Denial_Status='Denied' THEN 1 ELSE 0 END) * 100.0 / COUNT(*)) AS Denial_Rate_Percent
+FROM Claims
+GROUP BY Department;
+
+SELECT Procedure_Code,
+       (SUM(CASE WHEN Denial_Status='Denied' THEN 1 ELSE 0 END) * 100.0 / COUNT(*)) AS Denial_Rate_Percent
+FROM Claims
+GROUP BY Procedure_Code;
+
+SELECT MONTH(Date_of_Service) AS Month,
+       (SUM(CASE WHEN Denial_Status='Denied' THEN 1 ELSE 0 END) * 100.0 / COUNT(*)) AS Denial_Rate_Percent
+FROM Claims
+GROUP BY MONTH(Date_of_Service)
+ORDER BY Month;
+-- Average denial amount per department
+
+SELECT Department, AVG(Claim_Amount) AS Avg_Denied_Amount
+FROM Claims
+WHERE Denial_Status = 'Denied'
+GROUP BY Department;
+
+-- Most common diagnosis codes in denied claims
+SELECT Diagnosis_Code, COUNT(*) AS Denial_Count
+FROM Claims
+WHERE Denial_Status = 'Denied'
+GROUP BY Diagnosis_Code
+ORDER BY Denial_Count DESC;
+
+-- Denial reason diagnosis code wise counts
+SELECT Diagnosis_Code,
+       Denial_Reason,
+       COUNT(*) AS Denial_Count
+FROM claims
+WHERE Denial_Status = 'Denied'
+GROUP BY Diagnosis_Code, Denial_Reason
+ORDER BY Diagnosis_Code, Denial_Count DESC;
+
+-- Denial reason procedure code wise counts
+SELECT Procedure_Code,
+       Denial_Reason,
+       COUNT(*) AS Denial_Count
+FROM Claims
+WHERE Denial_Status = 'Denied'
+GROUP BY Procedure_Code, Denial_Reason
+ORDER BY Procedure_Code, Denial_Count DESC;
+
+
+-- Timeline of denial reason, procedure code, and diagnosis code trend
+SELECT 
+    MONTH(Date_of_Service) AS Month,
+    Denial_Reason,
+    COUNT(*) AS Denial_Count
+FROM Claims
+WHERE Denial_Status = 'Denied'
+GROUP BY MONTH(Date_of_Service), Denial_Reason
+ORDER BY Month, Denial_Count DESC;
+
+SELECT 
+    MONTH(Date_of_Service) AS Month,
+    Procedure_Code,
+    COUNT(*) AS Denial_Count
+FROM Claims
+WHERE Denial_Status = 'Denied'
+GROUP BY MONTH(Date_of_Service), Procedure_Code
+ORDER BY Month, Denial_Count DESC;
+
+SELECT 
+    MONTH(Date_of_Service) AS Month,
+    Diagnosis_Code,
+    COUNT(*) AS Denial_Count
+FROM Claims
+WHERE Denial_Status = 'Denied'
+GROUP BY MONTH(Date_of_Service), Diagnosis_Code
+ORDER BY Month, Denial_Count DESC;
+
+
